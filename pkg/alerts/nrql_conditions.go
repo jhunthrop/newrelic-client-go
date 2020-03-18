@@ -6,6 +6,115 @@ import (
 	"github.com/newrelic/newrelic-client-go/pkg/errors"
 )
 
+// ThresholdOccurance specifies the threshold occurance for NRQL alert condition terms.
+type ThresholdOccurance string
+
+var (
+	// ThresholdOccurrences enumerates the possible threshold occurance values for NRQL alert condition terms.
+	ThresholdOccurrences = struct {
+		All         ThresholdOccurance
+		AtLeastOnce ThresholdOccurance
+	}{
+		All:         "ALL",
+		AtLeastOnce: "AT_LEAST_ONCE",
+	}
+)
+
+// NrqlConditionType specifies the type of NRQL alert condition.
+type NrqlConditionType string
+
+var (
+	// NrqlConditionTypes enumerates the possible NRQL condition type values for NRQL alert conditions.
+	NrqlConditionTypes = struct {
+		Baseline NrqlConditionType
+		Static   NrqlConditionType
+	}{
+		Baseline: "BASELINE",
+		Static:   "STATIC",
+	}
+)
+
+// NrqlConditionValueFunction specifies the value function of NRQL alert condition.
+type NrqlConditionValueFunction string
+
+var (
+	// NrqlConditionValueFunctions enumerates the possible NRQL condition value function values for NRQL alert conditions.
+	NrqlConditionValueFunctions = struct {
+		SingleValue NrqlConditionValueFunction
+		Sum         NrqlConditionValueFunction
+	}{
+		SingleValue: "SINGLE_VALUE",
+		Sum:         "SUM",
+	}
+)
+
+// NrqlConditionValueFunction specifies the value function of NRQL alert condition.
+type NrqlConditionViolationTimeLimit string
+
+var (
+	// NrqlConditionValueFunctions enumerates the possible NRQL condition violation time limit values for NRQL alert conditions.
+	NrqlConditionViolationTimeLimits = struct {
+		OneHour         NrqlConditionViolationTimeLimit
+		TwoHours        NrqlConditionViolationTimeLimit
+		FourHours       NrqlConditionViolationTimeLimit
+		EightHours      NrqlConditionViolationTimeLimit
+		TwelveHours     NrqlConditionViolationTimeLimit
+		TwentyFourHours NrqlConditionViolationTimeLimit
+	}{
+		OneHour:         "ONE_HOUR",
+		TwoHours:        "TWO_HOURS",
+		FourHours:       "FOUR_HOURS",
+		EightHours:      "EIGHT_HOURS",
+		TwelveHours:     "TWELVE_HOURS",
+		TwentyFourHours: "TWENTY_FOUR_HOURS",
+	}
+)
+
+// NrqlConditionBase represents the base fields for a New Relic NRQL Alert condition. These fields
+// shared between the NrqlConditionMutationInput struct and NrqlConditionMutationResponse struct.
+type NrqlConditionBase struct {
+	Name               string                          `json:"name,omitempty"`
+	Enabled            string                          `json:"enabled"`
+	Description        string                          `json:"description,omitempty"`
+	Nrql               NrqlConditionQuery              `json:"nrql,omitempty"`
+	RunbookURL         string                          `json:"runbookUrl,omitempty"`
+	Terms              []NrqlConditionTerm             `json:"terms,omitempty"`
+	Type               NrqlConditionType               `json:"type,omitempty"`
+	ValueFunction      NrqlConditionValueFunction      `json:"value_function,omitempty"`
+	ViolationTimeLimit NrqlConditionViolationTimeLimit `json:"violationTimeLimit,omitempty"`
+}
+
+// NrqlConditionMutationInput represents the NerdGraph mutation input that's used to generate a request.
+type NrqlConditionMutationInput struct {
+	ID       int `json:"id,omitempty"`
+	PolicyID int `json:"policyId,omitempty"`
+	NrqlConditionBase
+}
+
+// NrqlConditionMutationResponse represents the NerdGraph API response for a New Relic NRQL Alert condition.
+type NrqlConditionMutationResponse struct {
+	NrqlConditionBase
+	ID       string `json:"id,omitempty"`
+	PolicyID string `json:"name,omitempty"`
+}
+
+// ConditionTerm represents the terms of a New Relic alert condition.
+type NrqlConditionTerm struct {
+	Operator            OperatorType `json:"operator,omitempty"`
+	Priority            PriorityType `json:"priority,omitempty"`
+	Threshold           float64      `json:"threshold,string"`
+	ThresholdDuration   int          `json:"thresholdDuration,string,omitempty"`
+	ThresholdOccurances int          `json:"thresholdOccurrences,string,omitempty"`
+}
+
+// NrqlConditionQuery represents the NRQL query object returned in a NerdGraph response object.
+type NrqlConditionQuery struct {
+	Query            string `json:"query,omitempty"`
+	EvaluationOffset string `json:"evaluationOffset,omitempty"`
+}
+
+//////////////////////////////////////////////////////////////////
+
 // NrqlCondition represents a New Relic NRQL Alert condition.
 type NrqlCondition struct {
 	Terms               []ConditionTerm   `json:"terms,omitempty"`
@@ -116,6 +225,10 @@ func (a *Alerts) DeleteNrqlCondition(id int) (*NrqlCondition, error) {
 	}
 
 	return &resp.NrqlCondition, nil
+}
+
+func (a *Alerts) CreateNrqlConditionMutation() (*NrqlCondition, error) {
+
 }
 
 type listNrqlConditionsParams struct {

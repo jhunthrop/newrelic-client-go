@@ -322,3 +322,30 @@ func (c *Client) Query(query string, vars map[string]interface{}, respBody inter
 
 	return nil
 }
+
+// GraphQLRequest executes a GraphQL HTTP request to New Relic's NerdGraph API.
+func (c *Client) GraphQLRequest(graphQL string, vars map[string]interface{}, respBody interface{}) error {
+	graphqlReqBody := &graphQLRequest{
+		Query:     graphQL,
+		Variables: vars,
+	}
+
+	graphqlRespBody := &graphQLResponse{
+		Data: respBody,
+	}
+
+	req, err := NewRequest(*c, http.MethodPost, c.config.NerdGraphBaseURL, nil, graphqlReqBody, graphqlRespBody)
+	if err != nil {
+		return err
+	}
+
+	req.SetAuthStrategy(&NerdGraphAuthorizer{})
+	c.SetErrorValue(&graphQLErrorResponse{})
+
+	_, err = c.Do(req)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
