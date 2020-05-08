@@ -172,7 +172,8 @@ var (
 								"calls_per_minute": 67,
 								"max_value": 0.0005,
 								"total_call_time_per_minute": 0.0197,
-								"utilization": 0.0328
+								"utilization": 0.0328,
+								"requests_per_minute": 5430
 							}
 						}
 					]
@@ -307,24 +308,25 @@ func TestMetricData(t *testing.T) {
 			"2020-01-27T23:22:00+00:00",
 			"2020-01-27T23:23:00+00:00",
 			MetricTimesliceValues{
-				0.0298,
-				0.298,
-				65.9,
-				0.0006,
-				0.0196,
-				0.0327,
+				"as_percentage":              0.0298,
+				"average_time":               0.298,
+				"calls_per_minute":           65.9,
+				"max_value":                  0.0006,
+				"total_call_time_per_minute": 0.0196,
+				"utilization":                0.0327,
 			},
 		},
 		{
 			"2020-01-27T23:23:00+00:00",
 			"2020-01-27T23:24:00+00:00",
 			MetricTimesliceValues{
-				0.0294,
-				0.294,
-				67,
-				0.0005,
-				0.0197,
-				0.0328,
+				"as_percentage":              0.0294,
+				"average_time":               0.294,
+				"calls_per_minute":           67,
+				"max_value":                  0.0005,
+				"total_call_time_per_minute": 0.0197,
+				"utilization":                0.0328,
+				"requests_per_minute":        5430,
 			},
 		},
 	}
@@ -342,11 +344,15 @@ func TestMetricData(t *testing.T) {
 		assert.Equal(t, &from, actual[0].Timeslices[i].From)
 		assert.Equal(t, &to, actual[0].Timeslices[i].To)
 
-		assert.Equal(t, e.Values.AsPercentage, actual[0].Timeslices[i].Values.AsPercentage)
-		assert.Equal(t, e.Values.AverageTime, actual[0].Timeslices[i].Values.AverageTime)
-		assert.Equal(t, e.Values.CallsPerMinute, actual[0].Timeslices[i].Values.CallsPerMinute)
-		assert.Equal(t, e.Values.MaxValue, actual[0].Timeslices[i].Values.MaxValue)
-		assert.Equal(t, e.Values.TotalCallTimePerMinute, actual[0].Timeslices[i].Values.TotalCallTimePerMinute)
-		assert.Equal(t, e.Values.Utilization, actual[0].Timeslices[i].Values.Utilization)
+		assert.Equal(t, e.Values["as_percentage"], actual[0].Timeslices[i].Values["as_percentage"])
+		assert.Equal(t, e.Values["average_time"], actual[0].Timeslices[i].Values["average_time"])
+		assert.Equal(t, e.Values["calls_per_minute"], actual[0].Timeslices[i].Values["calls_per_minute"])
+		assert.Equal(t, e.Values["max_value"], actual[0].Timeslices[i].Values["max_value"])
+		assert.Equal(t, e.Values["total_call_time_per_minute"], actual[0].Timeslices[i].Values["total_call_time_per_minute"])
+		assert.Equal(t, e.Values["utilization"], actual[0].Timeslices[i].Values["utilization"])
+
+		if _, ok := e.Values["requests_per_minute"]; ok {
+			assert.Equal(t, e.Values["requests_per_minute"], actual[0].Timeslices[i].Values["requests_per_minute"])
+		}
 	}
 }
